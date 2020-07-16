@@ -4,7 +4,6 @@ from app.libs.httper import Http
 
 
 class YuShuBook:
-    per_page = 15
     isbn_url = 'http://t.yushu.im/v2/book/isbn/{}'
     keyword_url = 'http://t.yushu.im/v2/book/search?q={}&count={}&start={}'
 

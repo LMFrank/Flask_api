@@ -4,6 +4,7 @@ DEBUG = True
 
 # 单数据库
 SQLALCHEMY_DATABASE_URI = 'mysql+cymysql://root:123456@localhost:3306/fisher'
+SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 SECRET_KEY = 'jdi121*@!sad321qq'
 
