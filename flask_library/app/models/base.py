@@ -2,6 +2,7 @@
 from contextlib import contextmanager
 
 from flask_sqlalchemy import SQLAlchemy as _SQLAlchemy, BaseQuery
+from sqlalchemy import Column, SmallInteger
 
 
 class SQLAlchemy(_SQLAlchemy):
@@ -17,3 +18,14 @@ class SQLAlchemy(_SQLAlchemy):
 
 
 db = SQLAlchemy()
+
+
+class Base(db.Model):
+    __abstract__ = True
+
+    status = Column(SmallInteger, default=1)
+
+    def set_attr(self, attrs_dict):
+        for key, value in attrs_dict.items():
+            if hasattr(self, key) and key != 'id':
+                setattr(self, key, value)

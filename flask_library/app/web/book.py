@@ -38,6 +38,17 @@ def search():
 
     return render_template('search_result.html', books=books, form=form)
 
+
 @web.route('/book/<isbn>/detail')
 def book_detail(isbn):
-    pass
+    """
+    书籍详情页展示：1 包含书籍的相关信息
+                 2 所有请求书籍人信息列表
+                 3 所有赠送者信息列表
+    :param isbn:
+    :return:
+    """
+    yushu_book = YuShuBook()
+    yushu_book.search_by_isbn(isbn)
+    book = BookViewModel(yushu_book.first)
+    return render_template('book_detail.html', book=book, wishes=[], gifts=[])

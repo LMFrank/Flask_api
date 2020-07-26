@@ -1,11 +1,7 @@
 # -*- coding: utf-8 -*-
 from sqlalchemy import Column, Integer, String
-# from app.models.base import Base
-# from app.models.base import db
-
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from app.models.base import Base
+from app.models.base import db
 
 
 class Book(db.Model):
