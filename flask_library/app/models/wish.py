@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
-from sqlalchemy import Column, Integer, Boolean, ForeignKey, String
+from app.models.base import Base, db
+from sqlalchemy import Column, Integer, Boolean, ForeignKey, String, func, desc
 from sqlalchemy.orm import relationship
 
-from app.models.base import db
+from app.spider.yushu_book import YuShuBook
 
 
-class Gift(db.Model):
+class Wish(Base):
     id = Column(Integer, primary_key=True)
     user = relationship('User')
     uid = Column(Integer, ForeignKey('user.id'))
     isbn = Column(String(15), nullable=False)
-    launched = Column(Boolean, default=False)  # 礼物是否已送出
+    launched = Column(Boolean, default=False)
