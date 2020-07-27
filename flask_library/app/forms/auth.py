@@ -18,3 +18,11 @@ class RegisterForm(Form):
     def validate_nickname(self, field):
         if User.query.filter_by(nickname=field.data).first():
             raise ValidationError('昵称已经存在')
+
+
+class LoginForm(Form):
+    """
+    登录表单验证
+    """
+    email = StringField(validators=[DataRequired(), Length(8, 64), Email(message='电子邮箱不合规范')])
+    password = PasswordField(validators=[DataRequired(message='密码不能为空')])

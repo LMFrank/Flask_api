@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from flask import Flask
+from flask_login import LoginManager
 from app.models.book import db
 
+
+login_manager = LoginManager()
 
 def create_app():
     """
@@ -14,6 +17,10 @@ def create_app():
     register_blueprint(app)
 
     db.init_app(app)
+    login_manager.init_app(app)
+    login_manager.login_view = 'web.login'
+    login_manager.login_message = '请先登录或注册'
+
     with app.app_context():
         db.create_all()
 
