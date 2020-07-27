@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask import request
 
-from app.libs.error_code import ClientTypeError, Success
+from app.libs.error_code import Success
 from app.libs.redprint import Redprint
 from app.libs.enums import ClientTypeEnum
 from app.validators.forms import ClientForm, UserEmailForm
@@ -20,6 +20,7 @@ def create_client():
     promise[form.type.data]()
 
     return Success()
+
 
 def __register_user_by_email():
     form = UserEmailForm().validate_for_api()
