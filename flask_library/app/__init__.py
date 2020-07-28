@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from flask import Flask
 from flask_login import LoginManager
-from app.models.book import db
+from app.models.base import db
 
 
 login_manager = LoginManager()
+
 
 def create_app():
     """

@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 from sqlalchemy import Column, Integer, String
 from app.models.base import Base
-from app.models.base import db
 
 
-class Book(db.Model):
+class Book(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String(50), nullable=False)
     author = Column(String(30), default='未名')

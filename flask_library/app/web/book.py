@@ -9,6 +9,7 @@ from app.spider.yushu_book import YuShuBook
 from . import web
 from app.forms.book import SearchForm
 from app.view_models.book import BookViewModel, BookCollection
+from app.view_models.trade import TradeInfo
 from app.models.gift import Gift
 from app.models.wish import Wish
 
