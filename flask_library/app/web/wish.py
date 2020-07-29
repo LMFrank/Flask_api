@@ -5,11 +5,24 @@ from flask_login import current_user
 from . import web
 from app.models.base import db
 from app.models.wish import Wish
+from app.view_models.wish import MyWishes
 
 
 @web.route('/my/wish')
 def my_wish():
-    pass
+    """
+    心愿清单：保存当前用户数据
+            1 用户id
+            2 心愿清单列表
+            3 礼物
+    :return:
+    """
+    uid = current_user.id
+    wish_of_mine = Wish.get_user_wish(uid)
+    isbn_list = [wish.isbn for wish in wish_of_mine]
+    gift_count_list = Wish.get_gift_count(isbn_list)
+    view_model = MyWishes(wish_of_mine, gift_count_list)
+    return render_template('my_wish.html', wishes=view_model.wishes)
 
 
 @web.route('/wish/book/<isbn>')
