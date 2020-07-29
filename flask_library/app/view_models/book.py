@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-
-
 class BookViewModel(object):
     def __init__(self, book):
         self.title = book['title']

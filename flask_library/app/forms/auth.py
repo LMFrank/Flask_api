@@ -21,8 +21,11 @@ class RegisterForm(Form):
 
 
 class LoginForm(Form):
-    """
-    登录表单验证
-    """
+    """登录表单验证"""
     email = StringField(validators=[DataRequired(), Length(8, 64), Email(message='电子邮箱不合规范')])
     password = PasswordField(validators=[DataRequired(message='密码不能为空')])
+
+
+class EmailForm(Form):
+    """电子邮件验证"""
+    email = StringField(validators=[DataRequired(), Length(8, 64), Email(message='电子邮箱不合规范')])

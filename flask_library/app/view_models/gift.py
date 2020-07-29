@@ -4,7 +4,7 @@ from app.view_models.book import BookViewModel
 
 class MyGifts(object):
     """
-    赠送清单对数据进行处理:返回[{wishes_count,book,id}]数据结构, 主要是模板渲染方便
+    赠送清单对数据进行处理:返回[{wishes_count, book, id}]数据结构, 主要是模板渲染方便
     """
 
     def __init__(self, gifts_of_mine, wish_count_list):

@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-
-
 class TradeInfo(object):
 
     def __init__(self, goods):
