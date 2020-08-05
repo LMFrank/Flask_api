@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from flask import request, render_template, redirect, url_for, flash
-from flask_login import login_user, logout_user
+from flask_login import login_user, logout_user, current_user, login_required
 
 from . import web
 
-from app.forms.auth import RegisterForm, LoginForm, EmailForm
+from app.forms.auth import RegisterForm, LoginForm, EmailForm, ResetPasswordForm, ChangePasswordForm
 from app.models.user import User
 from app.models.base import db
 from app.libs.email import send_mail
@@ -57,21 +57,51 @@ def forget_password_request():
             user = User.query.filter_by(email=account_email).first_or_404()
             send_mail(form.email.data, '重置您的密码', 'email/reset_password.html', user=user, token=user.generate_token())
             flash('一封邮件已经发送到邮箱' + account_email + ',请及时查收!')
-
     return render_template('auth/forget_password_request.html', form=form)
 
 
 @web.route('/reset/password/<token>', methods=['GET', 'POST'])
 def forget_password(token):
-    pass
+    """
+    忘记密码：1 需要POST验证表单验证
+            2 邮箱链接需要传递 id 因此采用携带token表名身份
+    :param token:
+    :return:
+    """
+    form = ResetPasswordForm(request.form)
+    if request.method == 'POST' and form.validate():
+        success = User.reset_password(token, form.password1.data)
+        if success:
+            flash('你的密码已更新，请使用新密码登陆')
+            return redirect(url_for('web.login'))
+        else:
+            flash('密码重置失败')
+    return render_template('auth/forget_password.html', form=form)
 
 
 @web.route('/change/password', methods=['GET', 'POST'])
+@login_required
 def change_password():
-    pass
+    """
+    修改密码：1 此处特别注意表单类的名字与渲染页面form表单name一致
+            2 直接访问password 设置即可
+    :return:
+    """
+    form = ChangePasswordForm(request.form)
+    if request.method == 'POST' and form.validate():
+        current_user.password = form.new_password1.data
+        db.session.commit()
+        flash('密码更新成功!!')
+        return redirect(url_for('web.index'))
+    return render_template('auth/change_password.html', form=form)
 
 
 @web.route('/logout')
+@login_required
 def logout():
+    """
+    注销：调用logout_user即可
+    :return:
+    """
     logout_user()
     return redirect(url_for('web_index'))
