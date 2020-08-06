@@ -14,6 +14,14 @@ class Gift(Base):
     isbn = Column(String(15), nullable=False)
     launched = Column(Boolean, default=False)  # 礼物是否已送出
 
+    def is_yourself_gift(self, uid):
+        """
+        判断用户id与礼物对应id是否相等
+        :param uid:
+        :return:
+        """
+        return True if self.uid == uid else False
+
     @classmethod
     def recent(cls):
         recent_gift = Gift.query.filter_by(
