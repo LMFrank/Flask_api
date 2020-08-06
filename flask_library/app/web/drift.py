@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import flash, redirect, url_for
+from flask import flash, redirect, url_for, render_template
 from flask_login import login_required, current_user
 
 from . import web
@@ -22,6 +22,13 @@ def send_drift(gid):
         flash('这本书属于你,不能向自己所要哦!!')
         return redirect(url_for('web.book_detail', isbn=current_gift.isbn))
 
+    can = current_user.can_send_drift()
+    if not can:
+        return render_template('not_enough_beans.html', beans=current_user.beans)
+
+    gifter = current_gift.user.summary
+
+    return render_template('drift.html', gifter=gifter, user_beans=current_user.beans)
 
 
 @web.route('/pending')
