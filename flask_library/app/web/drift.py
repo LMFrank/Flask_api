@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
-from flask import flash, redirect, url_for, render_template
+from flask import flash, redirect, url_for, render_template, request
 from flask_login import login_required, current_user
+from sqlalchemy import desc, or_
 
 from . import web
 from app.models.gift import Gift
+from app.forms.book import DriftForm
+from app.models.base import db
+from app.models.drift import Drift
+from app.view_models.book import BookViewModel
+from app.libs.email import send_mail
+from app.view_models.drift import DriftCollection
 
 
 @web.route('/drift/<int:gid>', methods=['GET', 'POST'])
@@ -21,19 +28,32 @@ def send_drift(gid):
     if current_gift.is_your_gift(current_user.id):
         flash('这本书属于你,不能向自己所要哦!!')
         return redirect(url_for('web.book_detail', isbn=current_gift.isbn))
+    else:
+        can = current_user.can_send_drift()
+        if not can:
+            return render_template('not_enough_beans.html', beans=current_user.beans)
 
-    can = current_user.can_send_drift()
-    if not can:
-        return render_template('not_enough_beans.html', beans=current_user.beans)
+        form = DriftForm(request.form)
+        if request.method == 'POST' and form.validate():
+            save_drift(form, current_gift)
+            send_mail(current_gift.user.email, '有人想要一本书', 'email/get_gift.html',
+                      wisher=current_user,
+                      gift=current_gift)
+            return redirect(url_for('web.pending'))
 
-    gifter = current_gift.user.summary
-
-    return render_template('drift.html', gifter=gifter, user_beans=current_user.beans)
+        gifter = current_gift.user.summary
+        return render_template('drift.html', gifter=gifter, user_beans=current_user.beans, form=form)
 
 
 @web.route('/pending')
+@login_required
 def pending():
-    pass
+    """
+    鱼漂的交易状态: 展示列表信息
+    """
+    drifts = Drift.query.filter(or_(Drift.requester_id == current_user.id, Drift.gifter_id == current_user.id)).order_by(desc(Drift.create_time)).all()
+    views = DriftCollection(drifts, current_user.id)
+    return render_template('pending.html', drifts=views.data)
 
 
 @web.route('/drift/<int:did>/reject')
@@ -49,3 +69,34 @@ def redraw_drift(did):
 @web.route('/drift/<int:did>/mailed')
 def mailed_drift(did):
     pass
+
+
+def save_drift(drift_form, current_gift):
+    """
+    保存  鱼漂模型
+    实现将DriftForm表单中的信息赋值到drift模型中
+    :param drift_form:
+    :param current_gift:
+    :return:
+    """
+    with db.auto_commit():
+        drift = Drift()
+        # 快速实现复制
+        drift_form.populate_obj(drift)
+        # 请求者信息
+        drift.gift_id = current_gift.id
+        drift.requester_id = current_user.id
+        drift.requester_nickname = current_user.nickname
+        # 赠送者信息
+        drift.gifter_nickname = current_gift.user.nickname
+        drift.gifter_id = current_gift.user.id
+        # 书籍类信息
+        book = BookViewModel(current_gift.book)
+        drift.book_title = book.title
+        drift.book_author = book.author
+        drift.book_img = book.image
+        drift.isbn = book.isbn
+
+        current_user.beans -= 1
+        db.session.add(drift)
+
