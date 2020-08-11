@@ -101,7 +101,7 @@ def mailed_drift(did):
         gift.launched = True
 
         # 不查询直接更新
-        Wish.query.filter_by(isbn=drift.isbn, uid=drift.request_id, launched=False).update({Wish.launched: True})
+        Wish.query.filter_by(isbn=drift.isbn, uid=drift.requester_id, launched=False).update({Wish.launched: True})
     return redirect(url_for('web.pending'))
 
 
