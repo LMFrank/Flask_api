@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import flash, redirect, url_for, render_template, request
+from flask import flash, redirect, url_for, render_template, request, current_app
 from flask_login import login_required, current_user
 from sqlalchemy import desc, or_
 
@@ -11,6 +11,8 @@ from app.models.drift import Drift
 from app.view_models.book import BookViewModel
 from app.libs.email import send_mail
 from app.view_models.drift import DriftCollection
+from app.libs.enums import PendingStatus
+from app.models.wish import Wish
 
 
 @web.route('/drift/<int:gid>', methods=['GET', 'POST'])
@@ -57,18 +59,50 @@ def pending():
 
 
 @web.route('/drift/<int:did>/reject')
+@login_required
 def reject_drift(did):
-    pass
+    """
+    拒绝操作：只有确定书籍赠送者才能拒绝请求
+    注意超权
+    """
+    with db.auto_commit():
+        drift = Drift.query.filter(Gift.uid == current_user.id, Drift.id == did).first_or_404()
+        drift.pending = PendingStatus.Reject
+        db.session.add(drift)
+    return redirect(url_for('web.pending'))
 
 
 @web.route('/drift/<int:did>/redraw')
+@login_required
 def redraw_drift(did):
-    pass
+    """
+    撤销操作：存在超权
+    uid：1  did：1
+    uid：2  did：2
+    """
+    with db.auto_commit():
+        drift = Drift.query.filter_by(id=did, requester_id=current_user.id).first_or_404()
+        drift.pending = PendingStatus.Redraw
+        current_user.beans += 1
+        db.session.add(drift)
+    return redirect(url_for('web.pending'))
 
 
 @web.route('/drift/<int:did>/mailed')
 def mailed_drift(did):
-    pass
+    """
+    邮寄操作：只有书籍的赠送者才可以确认邮寄
+    """
+    with db.auto_commit():
+        drift = Drift.query.filter_by(gifter_id=current_user.id, id=did).first_or_404()
+        drift.pending = PendingStatus.Success
+        current_user.beans += current_app.config['BEANS_UPLOAD_ONE_BOOK']
+        gift = Gift.query.filter_by(id=Drift.gift_id).first_or_404()
+        gift.launched = True
+
+        # 不查询直接更新
+        Wish.query.filter_by(isbn=drift.isbn, uid=drift.request_id, launched=False).update({Wish.launched: True})
+    return redirect(url_for('web.pending'))
 
 
 def save_drift(drift_form, current_gift):
