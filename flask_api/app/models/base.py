@@ -4,8 +4,11 @@ from flask_sqlalchemy import SQLAlchemy as _SQLAlchemy, BaseQuery
 from sqlalchemy import Column, Integer, SmallInteger
 from contextlib import contextmanager
 
+from app.libs.error_code import NotFound
+
 
 class SQLAlchemy(_SQLAlchemy):
+
     @contextmanager
     def auto_commit(self):
         try:
@@ -17,10 +20,23 @@ class SQLAlchemy(_SQLAlchemy):
 
 
 class Query(BaseQuery):
+
     def filter_by(self, **kwargs):
         if 'status' not in kwargs.keys():
             kwargs['status'] = 1
         return super(Query, self).filter_by(**kwargs)
+
+    def get_or_404(self, ident, description=None):
+        rv = self.get(ident)
+        if rv is None:
+            raise NotFound()
+        return rv
+
+    def first_or_404(self, description=None):
+        rv = self.first()
+        if rv is None:
+            raise NotFound()
+        return rv
 
 
 db = SQLAlchemy(query_class=Query)
@@ -33,6 +49,9 @@ class Base(db.Model):
 
     def __init__(self):
         self.create_time = int(datetime.now().timestamp())
+
+    def __getitem__(self, item):
+        return getattr(self, item)
 
     @property
     def create_datetime(self):

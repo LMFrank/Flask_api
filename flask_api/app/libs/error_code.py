@@ -8,6 +8,11 @@ class Success(APIException):
     error_code = 0
 
 
+class DeleteSuccess(Success):
+    code = 202
+    error_code = -1
+
+
 class ServerError(APIException):
     code = 500
     error_code = 999
