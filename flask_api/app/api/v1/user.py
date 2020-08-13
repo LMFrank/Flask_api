@@ -10,7 +10,7 @@ from app.models.user import User
 api = Redprint('user')
 
 
-@api.route('/', methods=['GET'])
+@api.route('', methods=['GET'])
 @auth.login_required
 def get_user():
     uid = g.user.uid
@@ -25,7 +25,7 @@ def super_get_user(uid):
     return jsonify(user)
 
 
-@api.route('/', methods=['DELETE'])
+@api.route('', methods=['DELETE'])
 @auth.login_required
 def delete_user():
     uid = g.user.uid
