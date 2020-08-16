@@ -22,11 +22,3 @@ class Book(Base):
         # 模型对象构造时，默认不会运行__init__
         self.fields = ['id', 'title', 'author', 'binding', 'publisher', 'price',
                        'pages', 'pubdate', 'isbn', 'summary', 'image']
-
-    def keys(self):
-        return self.fields
-
-    def hide(self, *keys):
-        for key in keys:
-            self.fields.remove(key)
-        return self

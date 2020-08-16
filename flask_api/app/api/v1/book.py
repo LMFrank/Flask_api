@@ -15,7 +15,7 @@ def search():
     form = BookSearchForm().validate_for_api()
     q = '%' + form.q.data + '%'
     books = Book.query.filter(or_(Book.title.like(q), Book.publisher.like(q))).all()
-    # books = [book.hide('summary', 'id') for book in books]
+    books = [book.hide('summary', 'id') for book in books]
     return jsonify(books)
 
 
