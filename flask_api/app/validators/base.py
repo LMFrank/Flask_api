@@ -8,8 +8,9 @@ from app.libs.error_code import ParameterException
 class BaseForm(Form):
 
     def __init__(self):
-        data = request.json
-        super(BaseForm, self).__init__(data=data)
+        data = request.get_json(silent=True)
+        args = request.args.to_dict()
+        super(BaseForm, self).__init__(data=data, **args)
 
     def validate_for_api(self):
         valid = super(BaseForm, self).validate()
