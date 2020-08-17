@@ -15,8 +15,8 @@ class DeleteSuccess(Success):
 
 class ServerError(APIException):
     code = 500
-    error_code = 999
     msg = 'sorry, we make a mistake'
+    error_code = 999
 
 
 class ClientTypeError(APIException):
@@ -54,5 +54,5 @@ class Forbidden(APIException):
 
 class DuplicationGift(APIException):
     code = 400
-    error_code = 2001
     msg = 'the current book has already in gift'
+    error_code = 2001
